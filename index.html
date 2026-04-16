@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Planos de Aula SESI</title>
+    <style>
+        /* Estilos básicos */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0056b3; 
+            text-align: center;
+        }
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            background-color: #fafafa;
+        }
+        legend {
+            font-weight: bold;
+            color: #0056b3;
+            background: #fff;
+            padding: 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input[type="text"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; 
+            font-family: inherit;
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        .aula-box {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #0056b3;
+        }
+        .aula-box h4 {
+            margin-top: 0;
+            color: #0056b3;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        button {
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+        .btn-secundario {
+            background-color: #28a745; 
+            margin-bottom: 20px;
+        }
+        .btn-secundario:hover {
+            background-color: #218838;
+        }
+        
+        /* Botão específico de refazer uma única aula */
+        .btn-refazer {
+            background-color: #ffc107;
+            color: #333;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid #d39e00;
+            cursor: pointer;
+        }
+        .btn-refazer:hover {
+            background-color: #e0a800;
+        }
+
+        /* Onde o plano gerado vai aparecer */
+        #resultado-plano {
+            margin-top: 40px;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            display: none; 
+            background: #fff;
+        }
+
+        /* Estilo da Tabela Padrão na tela */
+        .tabela-sesi { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px; 
+            background-color: #fff; 
+            font-size: 14px;
+        }
+        .tabela-sesi th, .tabela-sesi td { 
+            border: 1px solid #000; 
+            padding: 10px; 
+            text-align: left; 
+            vertical-align: top; 
+        }
+        .tabela-sesi th { 
+            background-color: #f2f2f2; 
+            width: 25%; 
+        }
+
+        /* Estilos específicos para Impressão / PDF */
+        @media print {
+            body { background-color: #fff; padding: 0; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            #formPlano, h1, .btn-secundario, #btn-imprimir, .btn-refazer { display: none !important; } 
+            #resultado-plano { display: block; border: none; padding: 0; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Gerador de Planos de Aula SESI</h1>
+    
+    <form id="formPlano">
+        <fieldset>
+            <legend>Cabeçalho do Documento</legend>
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Unidade Escolar:</label>
+                    <input type="text" id="cabUnidade" value="SESI – CABO DE SANTO AGOSTINHO" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>Professor:</label>
+                    <input type="text" id="cabProfessor" value="Victor Roberto" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 2;">
+                    <label>Área de conhecimento:</label>
+                    <input type="text" id="cabArea" value="CIÊNCIAS HUMANAS E SOCIAIS APLICADAS" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>Série e Turma:</label>
+                    <input type="text" id="cabSerie" placeholder="Ex: 1º ANO (B)" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Bimestre:</label>
+                    <select id="cabBimestre">
+                        <option value="1º BIMESTRE">1º BIMESTRE</option>
+                        <option value="2º BIMESTRE">2º BIMESTRE</option>
+                        <option value="3º BIMESTRE">3º BIMESTRE</option>
+                        <option value="4º BIMESTRE">4º BIMESTRE</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label>Início da Quinzena:</label>
+                    <input type="date" id="dataInicio" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>Fim da Quinzena:</label>
+                    <input type="date" id="dataFim" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 2;">
+                    <label>Capítulo / Referência:</label>
+                    <input type="text" id="cabCapitulo" placeholder="Ex: CADERNO 1 – CAPÍTULO 4" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>Duração da Aula (Geral):</label>
+                    <input type="text" id="cabDuracao" value="50 minutos (cada)" required>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Base Curricular</legend>
+            <div class="form-group">
+                <label for="habilidades">Habilidades da BNCC/SESI (Cole aqui os códigos e textos exatos):</label>
+                <textarea id="habilidades" placeholder="Ex: SESI.EM13CHS101.d.3 : Identificar os processos histórico-sociais..." required></textarea>
+            </div>
+        </fieldset>
+        
+        <h3>Aulas Previstas na Quinzena</h3>
+        <div id="container-aulas">
+            <div class="aula-box" id="caixa-aula-1">
+                <h4>Aula 1</h4>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 2;">
+                        <label>Tema da Aula:</label>
+                        <input type="text" class="tema-aula" placeholder="Ex: Grécia Antiga: Formação Territorial" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Data desta Aula:</label>
+                        <input type="date" class="data-aula" required>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label>Duração Real (Para a IA):</label>
+                        <select class="duracao-aula">
+                            <option value="50">50 min (1 aula)</option>
+                            <option value="100">100 min (2 aulas seguidas)</option>
+                        </select>
+                    </div>
+                    <div style="flex: 2;">
+                        <label>Abordagem Pedagógica:</label>
+                        <select class="abordagem-aula" onchange="verificarAbordagemCustomizada(this)">
+                            <option value="Tradicional: Centrada no professor, conhecimento transmitido direto.">Tradicional</option>
+                            <option value="Construtivista (Piaget): Aluno constrói conhecimento via exploração.">Construtivista (Piaget)</option>
+                            <option value="Montessori: Foco na autonomia e materiais concretos.">Montessori</option>
+                            <option value="Waldorf (Steiner): Desenvolvimento integral, arte e imaginação.">Waldorf</option>
+                            <option value="Reggio Emilia: Pesquisa, colaboração, projetos e protagonismo.">Reggio Emilia</option>
+                            <option value="Freiriana (Paulo Freire): Diálogo, criticidade e realidade social.">Freiriana (Paulo Freire)</option>
+                            <option value="Histórico-Crítica: Saberes universais e transformação social.">Histórico-Crítica</option>
+                            <option value="Abordagens Ativas/Tendências: Gamificação, IA, metodologias ativas.">Abordagens Ativas/Tendências Atuais</option>
+                            <option value="Outra">Outra (Personalizar...)</option>
+                        </select>
+                        <input type="text" class="abordagem-custom" placeholder="Descreva a abordagem desejada..." style="display:none; margin-top: 10px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn-secundario" onclick="adicionarAula()">+ Adicionar Nova Aula na Quinzena</button>
+        <br>
+        <button type="submit" id="btn-gerar" style="width: 100%; padding: 15px; font-size: 18px;">Gerar Planejamento Completo</button>
+    </form>
+
+    <div id="resultado-plano"></div>
+</div>
+
+<script>
+    let contadorAulas = 1;
+    
+    // Motor Groq 
+    const CHAVE_API = "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";
+
+    function verificarAbordagemCustomizada(selectElement) {
+        const customInput = selectElement.nextElementSibling;
+        if (selectElement.value === "Outra") {
+            customInput.style.display = "block";
+            customInput.required = true;
+        } else {
+            customInput.style.display = "none";
+            customInput.required = false;
+        }
+    }
+
+    function formatarDataBR(dataISO) {
+        if (!dataISO) return "";
+        return dataISO.split('-').reverse().join('/');
+    }
+
+    function adicionarAula() {
+        contadorAulas++;
+        const container = document.getElementById('container-aulas');
+        const novaAula = document.createElement('div');
+        novaAula.className = 'aula-box';
+        novaAula.id = `caixa-aula-${contadorAulas}`;
+        novaAula.innerHTML = `
+            <h4>Aula ${contadorAulas}</h4>
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 2;">
+                    <label>Tema da Aula:</label>
+                    <input type="text" class="tema-aula" placeholder="Ex: Tema da aula..." required>
+                </div>
+                <div style="flex: 1;">
+                    <label>Data desta Aula:</label>
+                    <input type="date" class="data-aula" required>
+                </div>
+            </div>
+            
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Duração Real (Para a IA):</label>
+                    <select class="duracao-aula">
+                        <option value="50">50 min (1 aula)</option>
+                        <option value="100">100 min (2 aulas seguidas)</option>
+                    </select>
+                </div>
+                <div style="flex: 2;">
+                    <label>Abordagem Pedagógica:</label>
+                    <select class="abordagem-aula" onchange="verificarAbordagemCustomizada(this)">
+                        <option value="Tradicional: Centrada no professor, conhecimento transmitido direto.">Tradicional</option>
+                        <option value="Construtivista (Piaget): Aluno constrói conhecimento via exploração.">Construtivista (Piaget)</option>
+                        <option value="Montessori: Foco na autonomia e materiais concretos.">Montessori</option>
+                        <option value="Waldorf (Steiner): Desenvolvimento integral, arte e imaginação.">Waldorf</option>
+                        <option value="Reggio Emilia: Pesquisa, colaboração, projetos e protagonismo.">Reggio Emilia</option>
+                        <option value="Freiriana (Paulo Freire): Diálogo, criticidade e realidade social.">Freiriana (Paulo Freire)</option>
+                        <option value="Histórico-Crítica: Saberes universais e transformação social.">Histórico-Crítica</option>
+                        <option value="Abordagens Ativas/Tendências: Gamificação, IA, metodologias ativas.">Abordagens Ativas/Tendências Atuais</option>
+                        <option value="Outra">Outra (Personalizar...)</option>
+                    </select>
+                    <input type="text" class="abordagem-custom" placeholder="Descreva a abordagem..." style="display:none; margin-top: 10px;">
+                </div>
+            </div>
+        `;
+        container.appendChild(novaAula);
+    }
+
+    // --- FUNÇÃO GERAR TUDO COM GROQ API ---
+    document.getElementById('formPlano').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const botao = document.getElementById('btn-gerar');
+        botao.innerText = "Produzindo Planejamento Denso e Completo... (Aguarde)";
+        botao.disabled = true;
+
+        const cabecalho = {
+            unidade: document.getElementById('cabUnidade').value,
+            professor: document.getElementById('cabProfessor').value,
+            area: document.getElementById('cabArea').value,
+            serie: document.getElementById('cabSerie').value,
+            bimestre: document.getElementById('cabBimestre').value,
+            periodo: `${formatarDataBR(document.getElementById('dataInicio').value)} à ${formatarDataBR(document.getElementById('dataFim').value)}`,
+            capitulo: document.getElementById('cabCapitulo').value,
+            duracaoGeral: document.getElementById('cabDuracao').value
+        };
+
+        const habilidades = document.getElementById('habilidades').value;
+        const caixasAula = document.querySelectorAll('.aula-box');
+        let listaAulas = [];
+        
+        caixasAula.forEach((caixa, index) => {
+            const tema = caixa.querySelector('.tema-aula').value;
+            const dataAula = formatarDataBR(caixa.querySelector('.data-aula').value);
+            const duracao = parseInt(caixa.querySelector('.duracao-aula').value);
+            
+            let abordagem = caixa.querySelector('.abordagem-aula').value;
+            if (abordagem === "Outra") {
+                abordagem = caixa.querySelector('.abordagem-custom').value;
+            }
+
+            listaAulas.push({
+                numero: index + 1,
+                tema: tema,
+                data: dataAula,
+                duracao: duracao,
+                abordagemPedagogica: abordagem
+            });
+        });
+
+        const instrucaoIA = `
+            Você é um professor mestre em design instrucional desenvolvendo um plano de aula de EXCELÊNCIA. 
+            Série/Turma: ${cabecalho.serie}.
+            Habilidades base: ${habilidades}.
+            
+            REGRAS ABSOLUTAS:
+            1. COMPLETUDE: Você DEVE gerar o planejamento para TODAS as aulas listadas abaixo. É expressamente PROIBIDO omitir qualquer aula da lista. O JSON de retorno deve conter um objeto no array "aulasGeradas" para CADA aula enviada.
+            2. PROFUNDIDADE (SEM PREGUIÇA): As descrições dos "momentos" devem ser DENSAS, ricas e detalhadas. Explique a dinâmica, as metodologias, as perguntas norteadoras e a ação dos alunos em pelo menos 3 a 4 frases completas por momento. Respostas genéricas e curtas não são aceitáveis.
+            3. ABORDAGEM: Adapte rigorosamente a narrativa e a ação pedagógica à "Abordagem Pedagógica" específica solicitada em cada aula.
+            4. NÃO REPITA OS CÓDIGOS DAS HABILIDADES.
+            5. A soma dos minutos dos "momentos" DEVE ser EXATAMENTE IGUAL à duração informada para aquela aula.
+            
+            Aqui estão as aulas que você OBRIGATORIAMENTE deve criar:
+            ${JSON.stringify(listaAulas)}
+            
+            Retorne APENAS um objeto JSON válido seguindo estritamente esta estrutura:
+            {
+              "aulasGeradas": [
+                {
+                  "numero": 1,
+                  "data": "10/04/2026",
+                  "tema": "Tema Exato",
+                  "objetivos": "Objetivos profundos e alinhados",
+                  "momentos": [ { "titulo": "Momento 1 (X min)", "descricao": "Descrição longa, rica e metodológica..." } ]
+                }
+              ],
+              "estrategias": "Texto denso e detalhado sobre estratégias avaliativas gerais."
+            }
+        `;
+
+        try {
+            const url = "https://api.groq.com/openai/v1/chat/completions";
+            const resposta = await fetch(url, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${CHAVE_API}`
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: "Você é um gerador de JSON estrito. Você nunca omite itens de listas e sempre escreve textos densos e altamente detalhados." },
+                        { role: "user", content: instrucaoIA }
+                    ],
+                    response_format: { type: "json_object" },
+                    max_tokens: 6000 // Garante que a IA não corte o texto no meio ao gerar várias aulas longas
+                })
+            });
+
+            const dados = await resposta.json();
+            
+            if(dados.error) throw new Error(dados.error.message);
+
+            const textoResposta = dados.choices[0].message.content;
+            const planoJSON = JSON.parse(textoResposta);
+            
+            renderizarPlano(planoJSON, cabecalho, habilidades);
+
+        } catch (erro) {
+            alert("Erro de conexão. Verifique o console.");
+            console.error(erro);
+        } finally {
+            botao.innerText = "Gerar Planejamento Completo";
+            botao.disabled = false;
+        }
+    });
+
+    // --- REFAZER AULA ÚNICA COM GROQ API ---
+    async function refazerAulaUnica(botao, numeroAula) {
+        const textoOriginal = botao.innerHTML;
+        botao.innerHTML = "⏳ Refazendo com mais profundidade...";
+        botao.disabled = true;
+
+        try {
+            const caixaAula = document.getElementById(`caixa-aula-${numeroAula}`);
+            const tema = caixaAula.querySelector('.tema-aula').value;
+            const duracao = parseInt(caixaAula.querySelector('.duracao-aula').value);
+            
+            let abordagem = caixaAula.querySelector('.abordagem-aula').value;
+            if (abordagem === "Outra") {
+                abordagem = caixaAula.querySelector('.abordagem-custom').value;
+            }
+
+            const serie = document.getElementById('cabSerie').value;
+            const habilidades = document.getElementById('habilidades').value;
+
+            const instrucaoRevisao = `
+                Você é um professor mestre em design instrucional. Gere uma NOVA VERSÃO do planejamento APENAS para esta aula.
+                Série/Turma: ${serie}. Habilidades base: ${habilidades}.
+                
+                Dados Exclusivos desta Aula:
+                - Tema: ${tema}
+                - Duração: ${duracao} minutos
+                - Abordagem Pedagógica Obrigatória: ${abordagem}
+                
+                REGRAS ABSOLUTAS:
+                1. PROFUNDIDADE EXTREMA: Descreva os momentos de forma densa e detalhada. Pelo menos 3 a 4 frases completas por momento, descrevendo a dinâmica exata e a ação do aluno. Não seja genérico.
+                2. NÃO repita códigos de habilidades.
+                3. Adapte a narrativa rigorosamente à Abordagem Pedagógica.
+                4. A soma do tempo dos momentos DEVE resultar EXATAMENTE em ${duracao} minutos.
+                
+                Retorne APENAS um objeto JSON válido:
+                {
+                  "objetivos": "Objetivos aprofundados...",
+                  "momentos": [ { "titulo": "Momento 1 (X min)", "descricao": "Nova descrição densa e detalhada..." } ]
+                }
+            `;
+
+            const url = "https://api.groq.com/openai/v1/chat/completions";
+            const resposta = await fetch(url, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${CHAVE_API}`
+                },
+                body: JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        { role: "system", content: "Você é um gerador de JSON estrito que escreve textos densos e profissionais." },
+                        { role: "user", content: instrucaoRevisao }
+                    ],
+                    response_format: { type: "json_object" },
+                    max_tokens: 3000
+                })
+            });
+
+            const dados = await resposta.json();
+            if(dados.error) throw new Error(dados.error.message);
+
+            const textoResposta = dados.choices[0].message.content;
+            const novaAula = JSON.parse(textoResposta);
+
+            document.getElementById(`obj-aula-${numeroAula}`).innerHTML = novaAula.objetivos;
+            
+            let momentosHtml = "";
+            novaAula.momentos.forEach(m => {
+                momentosHtml += `<strong>${m.titulo}:</strong> ${m.descricao}<br><br>`;
+            });
+            document.getElementById(`momentos-aula-${numeroAula}`).innerHTML = momentosHtml;
+
+        } catch (erro) {
+            alert("Erro ao refazer a aula. Tente novamente.");
+            console.error(erro);
+        } finally {
+            botao.innerHTML = textoOriginal;
+            botao.disabled = false;
+        }
+    }
+
+    function renderizarPlano(plano, cabecalho, habilidades) {
+        const divResultado = document.getElementById('resultado-plano');
+        
+        let htmlBase = `
+            <table class="tabela-sesi">
+                <tr><th>Unidade Escolar:</th><td contenteditable="true">${cabecalho.unidade}</td></tr>
+                <tr><th>Professor:</th><td contenteditable="true">${cabecalho.professor}</td></tr>
+                <tr><th>Área de conhecimento:</th><td contenteditable="true">${cabecalho.area}</td></tr>
+                <tr><th>Série e Turma:</th><td contenteditable="true">${cabecalho.serie}</td></tr>
+                <tr><th>Bimestre:</th><td contenteditable="true">${cabecalho.bimestre}</td></tr>
+                <tr><th>Período:</th><td contenteditable="true">${cabecalho.periodo}</td></tr>
+                <tr><th>Capítulo:</th><td contenteditable="true">${cabecalho.capitulo}</td></tr>
+                <tr><th>Duração da Aula:</th><td contenteditable="true">${cabecalho.duracaoGeral}</td></tr>
+            </table>
+
+            <h3>Habilidades:</h3>
+            <table class="tabela-sesi">
+                <tr><td contenteditable="true">${habilidades.replace(/\n/g, '<br>')}</td></tr>
+            </table>
+
+            <h3>Desenvolvimento da aula e recursos que serão utilizados:</h3>
+            <table class="tabela-sesi">
+        `;
+
+        plano.aulasGeradas.forEach(aula => {
+            let momentosHtml = "";
+            aula.momentos.forEach(m => {
+                momentosHtml += `<strong>${m.titulo}:</strong> ${m.descricao}<br><br>`;
+            });
+
+            htmlBase += `
+                <tr>
+                    <td style="width: 30%;">
+                        <div contenteditable="true">
+                            <strong>${aula.data} - Aula ${aula.numero}:</strong><br>
+                            ${aula.tema}<br><br>
+                            <strong>Objetivos:</strong><br> 
+                            <span id="obj-aula-${aula.numero}">${aula.objetivos}</span>
+                        </div>
+                        <button class="btn-refazer" onclick="refazerAulaUnica(this, ${aula.numero})">🔄 Refazer apenas esta aula</button>
+                    </td>
+                    <td contenteditable="true" id="momentos-aula-${aula.numero}">
+                        ${momentosHtml}
+                    </td>
+                </tr>
+            `;
+        });
+
+        htmlBase += `
+            </table>
+            
+            <h3>Estratégias e evidências de aprendizagem:</h3>
+            <table class="tabela-sesi">
+                <tr><td contenteditable="true">${plano.estrategias}</td></tr>
+            </table>
+            
+            <h3>OBSERVAÇÕES:</h3>
+            <table class="tabela-sesi">
+                <tr><td contenteditable="true">O uso de fichas para resolução de questões será uma constante...</td></tr>
+            </table>
+
+            <br>
+            <div style="display: flex; justify-content: space-between; margin-top: 40px; border-top: 1px solid #000; padding-top: 10px;">
+                <span contenteditable="true">Assinatura do(a) Professor(a)</span>
+                <span contenteditable="true">Cidade: ___________________ Data:       /       /</span>
+            </div>
+            
+            <button id="btn-imprimir" onclick="window.print()" style="margin-top: 30px; background-color: #17a2b8; width: 100%; padding: 15px; font-size: 18px;">🖨️ Imprimir / Salvar PDF</button>
+        `;
+
+        divResultado.innerHTML = htmlBase;
+        divResultado.style.display = 'block';
+        
+        divResultado.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
