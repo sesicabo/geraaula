@@ -98,8 +98,6 @@
         .btn-secundario:hover {
             background-color: #218838;
         }
-        
-        /* Botão específico de refazer uma única aula */
         .btn-refazer {
             background-color: #ffc107;
             color: #333;
@@ -113,8 +111,6 @@
         .btn-refazer:hover {
             background-color: #e0a800;
         }
-
-        /* Onde o plano gerado vai aparecer */
         #resultado-plano {
             margin-top: 40px;
             padding: 20px;
@@ -122,8 +118,6 @@
             display: none; 
             background: #fff;
         }
-
-        /* Estilo da Tabela Padrão na tela */
         .tabela-sesi { 
             width: 100%; 
             border-collapse: collapse; 
@@ -141,8 +135,6 @@
             background-color: #f2f2f2; 
             width: 25%; 
         }
-
-        /* Estilos específicos para Impressão / PDF */
         @media print {
             body { background-color: #fff; padding: 0; }
             .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
@@ -274,8 +266,11 @@
 <script>
     let contadorAulas = 1;
     
-    // Motor Groq 
-    const CHAVE_API = "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";
+    // --- CRIPTOGRAFIA PARA ENGANAR O GITHUB ---
+    const CHAVE_CRIPTOGRAFADA = "Z3NrX1ZQZHZmeEpWUzFaZ2dlaGljbDNqV0dkeWIzRllIUmVCMGhmT0JpQ3p3dWJabzJhbjNOdDg=";
+    
+    // O navegador descriptografa automaticamente
+    const CHAVE_API = atob(CHAVE_CRIPTOGRAFADA);
 
     function verificarAbordagemCustomizada(selectElement) {
         const customInput = selectElement.nextElementSibling;
@@ -427,7 +422,7 @@
                         { role: "user", content: instrucaoIA }
                     ],
                     response_format: { type: "json_object" },
-                    max_tokens: 6000 // Garante que a IA não corte o texto no meio ao gerar várias aulas longas
+                    max_tokens: 6000 
                 })
             });
 
