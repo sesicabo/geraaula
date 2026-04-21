@@ -268,7 +268,6 @@
     
     // --- CRIPTOGRAFIA MATEMÁTICA ABSOLUTA (BLINDAGEM GITHUB) ---
     const chaveArray = [103, 115, 107, 95, 76, 100, 79, 66, 99, 98, 117, 98, 97, 50, 113, 89, 115, 115, 99, 86, 79, 86, 114, 109, 87, 71, 100, 121, 98, 51, 70, 89, 112, 84, 77, 102, 74, 107, 56, 49, 57, 78, 74, 101, 122, 65, 114, 113, 67, 79, 106, 97, 116, 56, 88, 54];
-    
     const CHAVE_API = String.fromCharCode(...chaveArray);
 
     function verificarAbordagemCustomizada(selectElement) {
@@ -381,10 +380,12 @@
             Habilidades base: ${habilidades}.
             
             REGRAS ABSOLUTAS:
-            1. COMPLETUDE: Você DEVE gerar o planejamento para TODAS as aulas listadas abaixo.
-            2. PROFUNDIDADE: As descrições dos "momentos" devem ser DENSAS e detalhadas. Explique a dinâmica e a ação dos alunos em pelo menos 3 frases completas por momento.
-            3. DIVISÃO DO TEMPO: Você DEVE dividir CADA aula em pelo menos 3 momentos distintos (Ex: Introdução, Desenvolvimento, Conclusão). A soma matemática dos minutos desses momentos DEVE ser EXATAMENTE IGUAL à duração informada para a aula. Substitua o "X" pelos minutos reais.
-            4. ABORDAGEM: Adapte a narrativa à "Abordagem Pedagógica" específica.
+            1. COMPLETUDE: Você DEVE gerar o planejamento para TODAS as aulas listadas abaixo. É expressamente PROIBIDO omitir qualquer aula da lista.
+            2. PROFUNDIDADE (SEM PREGUIÇA): As descrições dos "momentos" devem ser DENSAS e detalhadas. Explique a dinâmica e a ação dos alunos em pelo menos 3 a 4 frases completas por momento.
+            3. DIVISÃO DO TEMPO FLEXÍVEL E NATURAL: Você DEVE dividir CADA aula em 3 a 5 momentos distintos (Ex: Sensibilização, Exposição, Atividade Prática, Conclusão). O tempo de cada momento deve ser escrito diretamente no título (Exemplo: "Desenvolvimento (20 min)"). É expressamente PROIBIDO usar variáveis ou fórmulas (como "X="). 
+            4. MATEMÁTICA DO TEMPO: A soma dos minutos de todos os momentos DEVE ser EXATAMENTE IGUAL à duração informada para a aula.
+            5. ABORDAGEM: Adapte a narrativa à "Abordagem Pedagógica" específica de cada aula.
+            6. NÃO repita os códigos das habilidades.
             
             Aqui estão as aulas que você deve criar:
             ${JSON.stringify(listaAulas)}
@@ -398,9 +399,10 @@
                   "tema": "Tema Exato",
                   "objetivos": "Objetivos profundos e alinhados",
                   "momentos": [
-                    { "titulo": "Introdução (15 min)", "descricao": "Descrição detalhada..." },
-                    { "titulo": "Desenvolvimento (20 min)", "descricao": "Descrição detalhada..." },
-                    { "titulo": "Conclusão (15 min)", "descricao": "Descrição detalhada..." }
+                    { "titulo": "Sensibilização (10 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Exposição e Diálogo (15 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Atividade em Grupo (15 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Fechamento (10 min)", "descricao": "Descrição detalhada..." }
                   ]
                 }
               ],
@@ -419,7 +421,7 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant",
                     messages: [
-                        { role: "system", content: "Você é um gerador de JSON estrito. Você sempre divide o tempo em múltiplos blocos e faz a soma exata." },
+                        { role: "system", content: "Você é um gerador de JSON estrito. Você sempre divide o tempo em até 5 blocos, escreve os minutos de forma natural e soma o total." },
                         { role: "user", content: instrucaoIA }
                     ],
                     response_format: { type: "json_object" },
@@ -437,7 +439,7 @@
             renderizarPlano(planoJSON, cabecalho, habilidades);
 
         } catch (erro) {
-            alert("Erro de conexão. Verifique o console.");
+            alert("Erro de limite ou conexão. Verifique o console.");
             console.error(erro);
         } finally {
             botao.innerText = "Gerar Planejamento Completo";
@@ -474,16 +476,17 @@
                 
                 REGRAS ABSOLUTAS:
                 1. PROFUNDIDADE EXTREMA: Descreva os momentos de forma densa e detalhada (pelo menos 3 frases completas por momento).
-                2. DIVISÃO DO TEMPO: Divida a aula em múltiplos momentos (Ex: Introdução, Desenvolvimento, Fechamento). Coloque o tempo exato em cada título. A soma matemática dos momentos DEVE resultar EXATAMENTE em ${duracao} minutos.
-                3. Adapte a narrativa rigorosamente à Abordagem Pedagógica.
+                2. DIVISÃO DO TEMPO FLEXÍVEL E NATURAL: Divida a aula em 3 a 5 momentos distintos. Escreva o tempo de forma direta no título (Ex: "Desenvolvimento (20 min)"). NÃO use variáveis matemáticas ou "X=". A soma dos momentos DEVE resultar EXATAMENTE em ${duracao} minutos.
+                3. NÃO repita códigos de habilidades.
+                4. Adapte a narrativa rigorosamente à Abordagem Pedagógica.
                 
                 Retorne APENAS um objeto JSON válido neste molde:
                 {
                   "objetivos": "Objetivos aprofundados...",
                   "momentos": [
                     { "titulo": "Introdução (15 min)", "descricao": "Descrição detalhada..." },
-                    { "titulo": "Desenvolvimento (20 min)", "descricao": "Descrição detalhada..." },
-                    { "titulo": "Conclusão (15 min)", "descricao": "Descrição detalhada..." }
+                    { "titulo": "Prática (25 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Fechamento (10 min)", "descricao": "Descrição detalhada..." }
                   ]
                 }
             `;
@@ -498,7 +501,7 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant",
                     messages: [
-                        { role: "system", content: "Você é um gerador de JSON estrito. Você sempre divide o tempo em blocos somando o total." },
+                        { role: "system", content: "Você é um gerador de JSON estrito. Você sempre divide o tempo em até 5 blocos naturais e escreve textos densos." },
                         { role: "user", content: instrucaoRevisao }
                     ],
                     response_format: { type: "json_object" },
