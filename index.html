@@ -267,7 +267,6 @@
     let contadorAulas = 1;
     
     // --- CRIPTOGRAFIA MATEMÁTICA ABSOLUTA (BLINDAGEM GITHUB) ---
-    // A chave está transformada em números para não acionar o robô de segurança
     const chaveArray = [103, 115, 107, 95, 76, 100, 79, 66, 99, 98, 117, 98, 97, 50, 113, 89, 115, 115, 99, 86, 79, 86, 114, 109, 87, 71, 100, 121, 98, 51, 70, 89, 112, 84, 77, 102, 74, 107, 56, 49, 57, 78, 74, 101, 122, 65, 114, 113, 67, 79, 106, 97, 116, 56, 88, 54];
     
     // O navegador converte os números de volta para a chave internamente
@@ -384,7 +383,7 @@
             
             REGRAS ABSOLUTAS:
             1. COMPLETUDE: Você DEVE gerar o planejamento para TODAS as aulas listadas abaixo. É expressamente PROIBIDO omitir qualquer aula da lista. O JSON de retorno deve conter um objeto no array "aulasGeradas" para CADA aula enviada.
-            2. PROFUNDIDADE (SEM PREGUIÇA): As descrições dos "momentos" devem ser DENSAS, ricas e detalhadas. Explique a dinâmica, as metodologias, as perguntas norteadoras e a ação dos alunos em pelo menos 3 a 4 frases completas por momento. Respostas genéricas e curtas não são aceitáveis.
+            2. PROFUNDIDADE: As descrições dos "momentos" devem ser DENSAS, ricas e detalhadas. Explique a dinâmica, as metodologias, as perguntas norteadoras e a ação dos alunos em pelo menos 3 a 4 frases completas por momento. Respostas genéricas e curtas não são aceitáveis.
             3. ABORDAGEM: Adapte rigorosamente a narrativa e a ação pedagógica à "Abordagem Pedagógica" específica solicitada em cada aula.
             4. NÃO REPITA OS CÓDIGOS DAS HABILIDADES.
             5. A soma dos minutos dos "momentos" DEVE ser EXATAMENTE IGUAL à duração informada para aquela aula.
@@ -416,7 +415,7 @@
                     "Authorization": `Bearer ${CHAVE_API}`
                 },
                 body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
+                    model: "llama3-8b-8192", // <-- MODELO ECONÔMICO E RÁPIDO APLICADO AQUI
                     messages: [
                         { role: "system", content: "Você é um gerador de JSON estrito. Você nunca omite itens de listas e sempre escreve textos densos e altamente detalhados." },
                         { role: "user", content: instrucaoIA }
@@ -436,7 +435,7 @@
             renderizarPlano(planoJSON, cabecalho, habilidades);
 
         } catch (erro) {
-            alert("Erro de conexão. Verifique o console.");
+            alert("Falha na autenticação ou cota esgotada. Verifique o console.");
             console.error(erro);
         } finally {
             botao.innerText = "Gerar Planejamento Completo";
@@ -492,7 +491,7 @@
                     "Authorization": `Bearer ${CHAVE_API}`
                 },
                 body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
+                    model: "llama3-8b-8192", // <-- MODELO ECONÔMICO E RÁPIDO APLICADO AQUI
                     messages: [
                         { role: "system", content: "Você é um gerador de JSON estrito que escreve textos densos e profissionais." },
                         { role: "user", content: instrucaoRevisao }
