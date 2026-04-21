@@ -268,8 +268,6 @@
     
     // --- CRIPTOGRAFIA MATEMÁTICA ABSOLUTA (BLINDAGEM GITHUB) ---
     const chaveArray = [103, 115, 107, 95, 76, 100, 79, 66, 99, 98, 117, 98, 97, 50, 113, 89, 115, 115, 99, 86, 79, 86, 114, 109, 87, 71, 100, 121, 98, 51, 70, 89, 112, 84, 77, 102, 74, 107, 56, 49, 57, 78, 74, 101, 122, 65, 114, 113, 67, 79, 106, 97, 116, 56, 88, 54];
-    
-    // O navegador converte os números de volta para a chave internamente
     const CHAVE_API = String.fromCharCode(...chaveArray);
 
     function verificarAbordagemCustomizada(selectElement) {
@@ -415,13 +413,13 @@
                     "Authorization": `Bearer ${CHAVE_API}`
                 },
                 body: JSON.stringify({
-                    model: "llama-3.1-8b-instant", // <-- MODELO NOVO, ATUALIZADO E ATIVO
+                    model: "llama-3.1-8b-instant",
                     messages: [
                         { role: "system", content: "Você é um gerador de JSON estrito. Você nunca omite itens de listas e sempre escreve textos densos e altamente detalhados." },
                         { role: "user", content: instrucaoIA }
                     ],
                     response_format: { type: "json_object" },
-                    max_tokens: 6000 
+                    max_tokens: 4000 // Limite corrigido para não estourar o TPM (Tokens Por Minuto) de 6000
                 })
             });
 
@@ -435,7 +433,7 @@
             renderizarPlano(planoJSON, cabecalho, habilidades);
 
         } catch (erro) {
-            alert("Erro de conexão. Verifique o console.");
+            alert("Erro de limite ou conexão. Verifique o console.");
             console.error(erro);
         } finally {
             botao.innerText = "Gerar Planejamento Completo";
@@ -491,13 +489,13 @@
                     "Authorization": `Bearer ${CHAVE_API}`
                 },
                 body: JSON.stringify({
-                    model: "llama-3.1-8b-instant", // <-- MODELO NOVO, ATUALIZADO E ATIVO
+                    model: "llama-3.1-8b-instant",
                     messages: [
                         { role: "system", content: "Você é um gerador de JSON estrito que escreve textos densos e profissionais." },
                         { role: "user", content: instrucaoRevisao }
                     ],
                     response_format: { type: "json_object" },
-                    max_tokens: 3000
+                    max_tokens: 2500 // Limite corrigido também aqui
                 })
             });
 
