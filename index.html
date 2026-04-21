@@ -415,7 +415,7 @@
                     "Authorization": `Bearer ${CHAVE_API}`
                 },
                 body: JSON.stringify({
-                    model: "llama3-8b-8192", // <-- MODELO ECONÔMICO APLICADO AQUI
+                    model: "llama-3.1-8b-instant", // <-- MODELO NOVO, ATUALIZADO E ATIVO
                     messages: [
                         { role: "system", content: "Você é um gerador de JSON estrito. Você nunca omite itens de listas e sempre escreve textos densos e altamente detalhados." },
                         { role: "user", content: instrucaoIA }
@@ -435,7 +435,7 @@
             renderizarPlano(planoJSON, cabecalho, habilidades);
 
         } catch (erro) {
-            alert("Falha na autenticação ou cota esgotada. Verifique o console.");
+            alert("Erro de conexão. Verifique o console.");
             console.error(erro);
         } finally {
             botao.innerText = "Gerar Planejamento Completo";
@@ -491,7 +491,7 @@
                     "Authorization": `Bearer ${CHAVE_API}`
                 },
                 body: JSON.stringify({
-                    model: "llama3-8b-8192", // <-- MODELO ECONÔMICO APLICADO AQUI
+                    model: "llama-3.1-8b-instant", // <-- MODELO NOVO, ATUALIZADO E ATIVO
                     messages: [
                         { role: "system", content: "Você é um gerador de JSON estrito que escreve textos densos e profissionais." },
                         { role: "user", content: instrucaoRevisao }
