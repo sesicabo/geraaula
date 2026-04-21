@@ -135,15 +135,47 @@
             background-color: #f2f2f2; 
             width: 25%; 
         }
+
+        /* Estilo do Modal de Boas-Vindas */
+        #modalBemVindo {
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); 
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center;
+        }
+        .modal-content {
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 8px; 
+            max-width: 500px; 
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-top: 5px solid #0056b3;
+        }
+
         @media print {
             body { background-color: #fff; padding: 0; }
             .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
-            #formPlano, h1, .btn-secundario, #btn-imprimir, .btn-refazer { display: none !important; } 
+            #formPlano, h1, .btn-secundario, #btn-imprimir, .btn-refazer, #modalBemVindo { display: none !important; } 
             #resultado-plano { display: block; border: none; padding: 0; margin: 0; }
         }
     </style>
 </head>
 <body>
+
+<div id="modalBemVindo">
+    <div class="modal-content">
+        <h2 style="color: #0056b3; margin-top: 0;">Bem-vindo(a)!</h2>
+        <p style="font-size: 16px; line-height: 1.5; color: #444;">
+            Olá, professor(a)! Essa é uma plataforma gratuita para ajudá-lo na otimização do seu tempo. Como toda ferramenta gratuita, ela possui limitações. Use-a com responsabilidade.
+        </p>
+        <button onclick="fecharModal()" style="margin-top: 15px; width: 100%;">Entendi</button>
+    </div>
+</div>
 
 <div class="container">
     <h1>Gerador de Planos de Aula SESI</h1>
@@ -264,6 +296,15 @@
 </div>
 
 <script>
+    // Exibe o modal de boas-vindas ao carregar a página
+    window.onload = function() {
+        document.getElementById('modalBemVindo').style.display = 'flex';
+    };
+
+    function fecharModal() {
+        document.getElementById('modalBemVindo').style.display = 'none';
+    }
+
     let contadorAulas = 1;
     
     // --- CRIPTOGRAFIA MATEMÁTICA ABSOLUTA (BLINDAGEM GITHUB) ---
@@ -429,6 +470,15 @@
                 })
             });
 
+            // Tratamento do Alerta Inteligente
+            if (!resposta.ok) {
+                if (resposta.status === 429 || resposta.status === 413) {
+                    throw new Error("LIMITE_ATINGIDO");
+                } else {
+                    throw new Error("ERRO_DESCONHECIDO");
+                }
+            }
+
             const dados = await resposta.json();
             
             if(dados.error) throw new Error(dados.error.message);
@@ -439,7 +489,12 @@
             renderizarPlano(planoJSON, cabecalho, habilidades);
 
         } catch (erro) {
-            alert("Erro de limite ou conexão. Verifique o console.");
+            // Disparo do Alerta Inteligente
+            if (erro.message === "LIMITE_ATINGIDO" || (erro.message && erro.message.includes("Rate limit"))) {
+                alert("⚠️ Atenção: O limite de planejamentos gratuitos do sistema foi atingido por hoje. Por favor, tente novamente em aproximadamente 1 hora.");
+            } else {
+                alert("Ocorreu um erro de conexão. Verifique o console ou tente novamente mais tarde.");
+            }
             console.error(erro);
         } finally {
             botao.innerText = "Gerar Planejamento Completo";
@@ -509,6 +564,14 @@
                 })
             });
 
+            if (!resposta.ok) {
+                if (resposta.status === 429 || resposta.status === 413) {
+                    throw new Error("LIMITE_ATINGIDO");
+                } else {
+                    throw new Error("ERRO_DESCONHECIDO");
+                }
+            }
+
             const dados = await resposta.json();
             if(dados.error) throw new Error(dados.error.message);
 
@@ -524,7 +587,11 @@
             document.getElementById(`momentos-aula-${numeroAula}`).innerHTML = momentosHtml;
 
         } catch (erro) {
-            alert("Erro ao refazer a aula. Tente novamente.");
+            if (erro.message === "LIMITE_ATINGIDO" || (erro.message && erro.message.includes("Rate limit"))) {
+                alert("⚠️ Atenção: O limite de planejamentos gratuitos do sistema foi atingido por hoje. Por favor, tente novamente em aproximadamente 1 hora.");
+            } else {
+                alert("Ocorreu um erro ao refazer a aula. Verifique sua conexão e tente novamente.");
+            }
             console.error(erro);
         } finally {
             botao.innerHTML = textoOriginal;
