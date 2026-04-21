@@ -268,6 +268,7 @@
     
     // --- CRIPTOGRAFIA MATEMÁTICA ABSOLUTA (BLINDAGEM GITHUB) ---
     const chaveArray = [103, 115, 107, 95, 76, 100, 79, 66, 99, 98, 117, 98, 97, 50, 113, 89, 115, 115, 99, 86, 79, 86, 114, 109, 87, 71, 100, 121, 98, 51, 70, 89, 112, 84, 77, 102, 74, 107, 56, 49, 57, 78, 74, 101, 122, 65, 114, 113, 67, 79, 106, 97, 116, 56, 88, 54];
+    
     const CHAVE_API = String.fromCharCode(...chaveArray);
 
     function verificarAbordagemCustomizada(selectElement) {
@@ -380,16 +381,15 @@
             Habilidades base: ${habilidades}.
             
             REGRAS ABSOLUTAS:
-            1. COMPLETUDE: Você DEVE gerar o planejamento para TODAS as aulas listadas abaixo. É expressamente PROIBIDO omitir qualquer aula da lista. O JSON de retorno deve conter um objeto no array "aulasGeradas" para CADA aula enviada.
-            2. PROFUNDIDADE (SEM PREGUIÇA): As descrições dos "momentos" devem ser DENSAS, ricas e detalhadas. Explique a dinâmica, as metodologias, as perguntas norteadoras e a ação dos alunos em pelo menos 3 a 4 frases completas por momento. Respostas genéricas e curtas não são aceitáveis.
-            3. ABORDAGEM: Adapte rigorosamente a narrativa e a ação pedagógica à "Abordagem Pedagógica" específica solicitada em cada aula.
-            4. NÃO REPITA OS CÓDIGOS DAS HABILIDADES.
-            5. A soma dos minutos dos "momentos" DEVE ser EXATAMENTE IGUAL à duração informada para aquela aula.
+            1. COMPLETUDE: Você DEVE gerar o planejamento para TODAS as aulas listadas abaixo.
+            2. PROFUNDIDADE: As descrições dos "momentos" devem ser DENSAS e detalhadas. Explique a dinâmica e a ação dos alunos em pelo menos 3 frases completas por momento.
+            3. DIVISÃO DO TEMPO: Você DEVE dividir CADA aula em pelo menos 3 momentos distintos (Ex: Introdução, Desenvolvimento, Conclusão). A soma matemática dos minutos desses momentos DEVE ser EXATAMENTE IGUAL à duração informada para a aula. Substitua o "X" pelos minutos reais.
+            4. ABORDAGEM: Adapte a narrativa à "Abordagem Pedagógica" específica.
             
-            Aqui estão as aulas que você OBRIGATORIAMENTE deve criar:
+            Aqui estão as aulas que você deve criar:
             ${JSON.stringify(listaAulas)}
             
-            Retorne APENAS um objeto JSON válido seguindo estritamente esta estrutura:
+            Retorne APENAS um objeto JSON válido seguindo estritamente este molde estrutural:
             {
               "aulasGeradas": [
                 {
@@ -397,7 +397,11 @@
                   "data": "10/04/2026",
                   "tema": "Tema Exato",
                   "objetivos": "Objetivos profundos e alinhados",
-                  "momentos": [ { "titulo": "Momento 1 (X min)", "descricao": "Descrição longa, rica e metodológica..." } ]
+                  "momentos": [
+                    { "titulo": "Introdução (15 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Desenvolvimento (20 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Conclusão (15 min)", "descricao": "Descrição detalhada..." }
+                  ]
                 }
               ],
               "estrategias": "Texto denso e detalhado sobre estratégias avaliativas gerais."
@@ -415,11 +419,11 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant",
                     messages: [
-                        { role: "system", content: "Você é um gerador de JSON estrito. Você nunca omite itens de listas e sempre escreve textos densos e altamente detalhados." },
+                        { role: "system", content: "Você é um gerador de JSON estrito. Você sempre divide o tempo em múltiplos blocos e faz a soma exata." },
                         { role: "user", content: instrucaoIA }
                     ],
                     response_format: { type: "json_object" },
-                    max_tokens: 4000 // Limite corrigido para não estourar o TPM (Tokens Por Minuto) de 6000
+                    max_tokens: 4000 
                 })
             });
 
@@ -433,7 +437,7 @@
             renderizarPlano(planoJSON, cabecalho, habilidades);
 
         } catch (erro) {
-            alert("Erro de limite ou conexão. Verifique o console.");
+            alert("Erro de conexão. Verifique o console.");
             console.error(erro);
         } finally {
             botao.innerText = "Gerar Planejamento Completo";
@@ -469,15 +473,18 @@
                 - Abordagem Pedagógica Obrigatória: ${abordagem}
                 
                 REGRAS ABSOLUTAS:
-                1. PROFUNDIDADE EXTREMA: Descreva os momentos de forma densa e detalhada. Pelo menos 3 a 4 frases completas por momento, descrevendo a dinâmica exata e a ação do aluno. Não seja genérico.
-                2. NÃO repita códigos de habilidades.
+                1. PROFUNDIDADE EXTREMA: Descreva os momentos de forma densa e detalhada (pelo menos 3 frases completas por momento).
+                2. DIVISÃO DO TEMPO: Divida a aula em múltiplos momentos (Ex: Introdução, Desenvolvimento, Fechamento). Coloque o tempo exato em cada título. A soma matemática dos momentos DEVE resultar EXATAMENTE em ${duracao} minutos.
                 3. Adapte a narrativa rigorosamente à Abordagem Pedagógica.
-                4. A soma do tempo dos momentos DEVE resultar EXATAMENTE em ${duracao} minutos.
                 
-                Retorne APENAS um objeto JSON válido:
+                Retorne APENAS um objeto JSON válido neste molde:
                 {
                   "objetivos": "Objetivos aprofundados...",
-                  "momentos": [ { "titulo": "Momento 1 (X min)", "descricao": "Nova descrição densa e detalhada..." } ]
+                  "momentos": [
+                    { "titulo": "Introdução (15 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Desenvolvimento (20 min)", "descricao": "Descrição detalhada..." },
+                    { "titulo": "Conclusão (15 min)", "descricao": "Descrição detalhada..." }
+                  ]
                 }
             `;
 
@@ -491,11 +498,11 @@
                 body: JSON.stringify({
                     model: "llama-3.1-8b-instant",
                     messages: [
-                        { role: "system", content: "Você é um gerador de JSON estrito que escreve textos densos e profissionais." },
+                        { role: "system", content: "Você é um gerador de JSON estrito. Você sempre divide o tempo em blocos somando o total." },
                         { role: "user", content: instrucaoRevisao }
                     ],
                     response_format: { type: "json_object" },
-                    max_tokens: 2500 // Limite corrigido também aqui
+                    max_tokens: 2500
                 })
             });
 
